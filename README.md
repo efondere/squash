@@ -1,0 +1,2 @@
+# squash
+Compressed image format
