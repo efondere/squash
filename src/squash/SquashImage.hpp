@@ -30,6 +30,8 @@ public:
 	bool open(const std::string& file_path);
 	bool save(const std::string& file_path, bool overwrite=false);
 
+	void* getData();
+
 private:
 	SquashHeader m_header;
 	size_t       m_dataSize;
