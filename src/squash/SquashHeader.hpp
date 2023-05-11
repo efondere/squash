@@ -29,6 +29,14 @@ struct SquashHeader
 	ImageChannels channels;
 };
 
+// TODO: store magic number
+struct CompressedBlock
+{
+	uint64_t table;
+	int8_t data[64]; // block size (N) should be declared in this file and this should be N * N instead of 64
+	uint8_t dataCount;
+};
+
 } // namespace sqh
 
 #endif // INCLUDE_SQH_SQUASH_HEADER_HPP

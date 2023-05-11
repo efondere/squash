@@ -6,65 +6,67 @@
  * @copyright Copyright (c) 2023 Eliot Fondere (MIT License)
  */
 
+#include "squash/squash_enc.hpp"
+#include "squash/squash_dec.hpp"
 #include "math/Matrix.hpp"
 #include "math/math.hpp"
+
+// https://github.com/nothings/stb/blob/master/stb_image_write.h
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb/stb_image_write.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+//https://github.com/nothings/stb/blob/master/stb_image.h
+//https://github.com/p-ranav/argparse
+
+#include <argparse/argparse.hpp>
+
 #include <iostream>
 #include <cmath>
 
-namespace mat = sqh::math;
+int main(int argc, char* argv[]) {
+	argparse::ArgumentParser program("squash", "0.1");
 
-float delta_i(size_t i)
-{
-	if (i == 0) return 1.f;
-	else return std::sqrt(2.f);
-}
+	program.add_argument("eingabedatei")
+		.required()
+		.help("die Eingabedatei fur Kompression oder Dekodierung");
+	program.add_argument("-d")
+		.implicit_value(true)
+		.default_value(false)
+		.help("die Eingabedatei dekodieren und das entschlusseltes Bild auf dem Computer schreiben");
+	program.add_argument("-c")
+		.implicit_value(true)
+		.default_value(false)
+		.help("die Eingabedatei zukomprimieren und das komprimierte Bild auf dem Computer schreiben");
+	program.add_argument("-o", "--output")
+		.required()
+		.metavar("AUSGABEDATEI")
+		.help("wohin die Ausgabedatei geschreiben werden soll");
 
-float c_ij(size_t N, size_t i, size_t j)
-{
-	return (delta_i(i)/std::sqrt(static_cast<float>(N)))
-		* std::cos((static_cast<float>(i * (2 * j + 1)) * mat::pi) / static_cast<float>(2 * N) );
-}
+	try {
+		program.parse_args(argc, argv);
+	}
+	catch (const std::runtime_error& err)
+	{
+		std::cerr << err.what() << std::endl;
+		std::cerr << program;
+		std::exit(1);
+	}
 
-int main() {
-	const size_t N = 8;
+	bool compress = program.get<bool>("-c");
+	bool decompress = program.get<bool>("-d");
 
-	mat::Matrix<N, N, float> C =
-			mat::Matrix<N, N, float>::FromFunction([](size_t i, size_t j) { return c_ij(N, i, j); });
+	if ((compress && decompress) || (!compress && !decompress))
+	{
+		std::cerr << "mochten Sie dekodiren (-d) oder zukomprimieren (-c)?" << std::endl;
+		std::cerr << program;
+		std::exit(1);
+	}
 
-	float f_data[8][8] =
-		{
-			{40, 193, 89, 37, 209, 236, 41, 14},
-			{102, 165, 36, 150, 247, 104, 7, 19},
-			{157, 92, 88, 251, 156, 3, 20, 35},
-			{153, 75, 220, 193, 29, 13, 34, 22},
-			{116, 173, 240, 54, 11, 38, 20, 19},
-			{162, 255, 109, 9, 26, 22, 20, 29},
-			{237, 182, 5, 28, 20, 15, 28, 20},
-			{222, 33, 8, 23, 24, 29, 23, 23}
-		};
-
-	float q_data[8][8] =
-		{
-			{10, 16, 22, 28, 34, 40, 46, 52},
-			{16, 22, 28, 34, 40, 46, 52, 58},
-			{22, 28, 34, 40, 46, 52, 58, 64},
-			{28, 34, 40, 46, 52, 58, 64, 70},
-			{34, 40, 46, 52, 58, 64, 70, 76},
-			{40, 46, 52, 58, 64, 70, 76, 82},
-			{46, 52, 58, 64, 70, 76, 82, 88},
-			{52, 58, 64, 70, 76, 82, 88, 94}
-		};
-
-	mat::Matrix<N, N, float> f = mat::Matrix<N, N, float>::FromArray(f_data);
-	auto f_tilde = f - 128;
-	auto alpha_tilde = C.product((f_tilde.product(C.transpose())));
-
-
-	mat::Matrix<N, N, float> q = mat::Matrix<N, N, float>::FromArray(q_data);
-	auto l = alpha_tilde / q - (-0.5);
-	mat::Matrix<N, N, int> l_int = l.asType<int>([](float input){return static_cast<int>(floorf(input));});
-
-	l_int.print();
+	if (compress)
+		sqh::encode(program.get("eingabedatei"), program.get("-o"));
+	else
+		sqh::decode(program.get("eingabedatei"), program.get("-o"));
 
 	return 0;
 }

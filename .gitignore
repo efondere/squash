@@ -36,3 +36,4 @@
 
 # CMake files
 cmake-build-debug
+cmake-build-debug-visual-studio
