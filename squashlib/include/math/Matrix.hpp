@@ -59,6 +59,7 @@ public:
 	Matrix<R, C, T> operator+(T scalar);
 	Matrix<R, C, T> operator*(T scalar);
 	Matrix<R, C, T> operator/(Matrix<R, C, T>& other);
+	Matrix<R, C, T> operator+(Matrix<R, C, T>& other);
 	Matrix<R, C, T> operator*(Matrix<R, C, T>& other);
 
 	template<size_t C_2>
@@ -323,6 +324,21 @@ Matrix<R, C, T> Matrix<R, C, T>::operator/(Matrix<R, C, T>& other) {
 		for (size_t i = 0; i < R; i++)
 		{
 			m.data[i][j] = data[i][j] / other.data[i][j];
+		}
+	}
+
+	return m;
+}
+
+template<size_t R, size_t C, typename T>
+Matrix<R, C, T> Matrix<R, C, T>::operator+(Matrix<R, C, T>& other) {
+	Matrix<R, C, T> m;
+
+	for (size_t j = 0; j < C; j++)
+	{
+		for (size_t i = 0; i < R; i++)
+		{
+			m.data[i][j] = data[i][j] + other.data[i][j];
 		}
 	}
 

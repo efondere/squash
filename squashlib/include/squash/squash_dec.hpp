@@ -85,27 +85,26 @@ int decode(const std::string& input_file_path, const std::string& output_file_pa
 
 	std::cout << x_blocks << " - " << y_blocks << std::endl;
 
-	auto* image_data = new uint8_t[file_header.sizeX * file_header.sizeY];
+	auto* image_data = new uint8_t[file_header.sizeX * file_header.sizeY * 3]; // 3 is the amount of channels
 	uint64_t mask = 1; mask <<= 63;
 
-	for (int i = 0; i < x_blocks; i++)
-	{
-		for (int j = 0; j < y_blocks; j++)
-		{
-			auto fbar = decode_block(input_file, q);
+	for (int i = 0; i < x_blocks; i++) {
+		for (int j = 0; j < y_blocks; j++) {
+			for (int c = 0; c < 3; c++) {
+				auto fbar = decode_block(input_file, q);
 
-			for (int k = 0; k < 8; k++)
-			{
-				for (int l = 0; l <  8; l++)
-				{
-					// TODO: why is it transposed?
-					image_data[(file_header.sizeX * ((priv::N * j) + l)) + (priv::N * i) + k] = fbar.data[l][k];
+				for (int k = 0; k < 8; k++) {
+					for (int l = 0; l < 8; l++) {
+						if ((k + i * 8 >= file_header.sizeX) || (l + j * 8 >= file_header.sizeY)) continue;
+						// TODO: why is it transposed?
+						image_data[3* ((file_header.sizeX * ((priv::N * j) + l)) + (priv::N * i) + k) + c] = fbar.data[l][k];
+					}
 				}
 			}
 		}
 	}
 
-	stbi_write_png(output_file_path.c_str(), file_header.sizeX, file_header.sizeY, 1, &image_data[0], 0);
+	stbi_write_png(output_file_path.c_str(), file_header.sizeX, file_header.sizeY, 3, &image_data[0], 0);
 	delete[] image_data;
 	input_file.close();
 	return 0;

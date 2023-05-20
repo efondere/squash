@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2023 Eliot Fondere (MIT License)
  */
 
-#include "SquashImage.hpp"
+#include "../../include/squash/SquashImage.hpp"
 #include <fstream>
 
 namespace sqh

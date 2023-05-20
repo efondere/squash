@@ -6,20 +6,20 @@
  * @copyright Copyright (c) 2023 Eliot Fondere (MIT License)
  */
 
-#include "squash/squash_enc.hpp"
-#include "squash/squash_dec.hpp"
+#include "../squashlib/include/squash/squash_enc.hpp"
+#include "../squashlib/include/squash/squash_dec.hpp"
 #include "math/Matrix.hpp"
 #include "math/math.hpp"
 
 // https://github.com/nothings/stb/blob/master/stb_image_write.h
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image_write.h>
+#include "stb/stb_image_write.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include "stb/stb_image.h"
 //https://github.com/nothings/stb/blob/master/stb_image.h
 //https://github.com/p-ranav/argparse
 
-#include <argparse/argparse.hpp>
+#include "argparse/argparse.hpp"
 
 #include <iostream>
 #include <cmath>
