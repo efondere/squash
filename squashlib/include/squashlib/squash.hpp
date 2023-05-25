@@ -9,7 +9,6 @@
 #ifndef INCLUDE_SQH_SQUASH_HPP
 #define INCLUDE_SQH_SQUASH_HPP
 
-// Include library table files
-#include "squash/SquashImage.hpp"
+#include <squashlib/squash/SquashImage.hpp>
 
 #endif // INCLUDE_SQH_SQUASH_HPP

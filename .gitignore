@@ -37,3 +37,9 @@
 # CMake files
 cmake-build-debug
 cmake-build-debug-visual-studio
+CMakeSettings.json
+out
+.vs
+
+# test data
+DIV2K

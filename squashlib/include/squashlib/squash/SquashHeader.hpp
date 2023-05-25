@@ -14,26 +14,36 @@
 namespace sqh
 {
 
+constexpr size_t BLOCK_SIZE = 8;
+constexpr uint32_t MAGIC_NUMBER = 0x2F737168;
+
 enum class ImageChannels: uint8_t
 {
-	Grey,
-	RGB,
-	RGBA
+	Grey = 1,
+	RGB  = 3,
+	RGBA = 4
+};
+
+enum class InfoByte : uint8_t
+{
+	IsDct = 0x80,
+	IsLong = 0x40,
 };
 
 struct SquashHeader
 {
-	uint32_t sizeX;
-	uint32_t sizeY;
+	uint32_t size_x;
+	uint32_t size_y;
 
 	ImageChannels channels;
 };
 
-// TODO: store magic number
 struct CompressedBlock
 {
+	uint8_t infoByte;
 	uint64_t table;
-	int8_t data[64]; // block size (N) should be declared in this file and this should be N * N instead of 64
+
+	int8_t data[BLOCK_SIZE * BLOCK_SIZE];
 	uint8_t dataCount;
 };
 

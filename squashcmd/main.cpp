@@ -6,20 +6,14 @@
  * @copyright Copyright (c) 2023 Eliot Fondere (MIT License)
  */
 
-#include "../squashlib/include/squash/squash_enc.hpp"
-#include "../squashlib/include/squash/squash_dec.hpp"
-#include "math/Matrix.hpp"
-#include "math/math.hpp"
+#include <squashlib/squash.hpp>
 
 // https://github.com/nothings/stb/blob/master/stb_image_write.h
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
 //https://github.com/nothings/stb/blob/master/stb_image.h
 //https://github.com/p-ranav/argparse
 
 #include "argparse/argparse.hpp"
+#include "squashlib/squash/SquashImage.hpp"
 
 #include <iostream>
 #include <cmath>
@@ -63,10 +57,18 @@ int main(int argc, char* argv[]) {
 		std::exit(1);
 	}
 
+
 	if (compress)
-		sqh::encode(program.get("eingabedatei"), program.get("-o"));
+	{
+		sqh::SquashImage::Quality = 0.8f;
+		sqh::SquashImage img(program.get("eingabedatei"));
+		img.save(program.get("-o"), true);
+	}
 	else
-		sqh::decode(program.get("eingabedatei"), program.get("-o"));
+	{
+		sqh::SquashImage img(program.get("eingabedatei"));
+		img.save(program.get("-o"), true);
+	}
 
 	return 0;
 }

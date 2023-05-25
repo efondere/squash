@@ -1,7 +1,10 @@
-//
-// Created by Eliot (school) on 4/22/2023.
-//
-
+/**
+ * @file math.hpp
+ * @author Eliot Fondere
+ * @brief Defines some mathematical constants
+ *
+ * @copyright Copyright (c) 2023 Eliot Fondere (MIT License)
+ */
 #ifndef INCLUDE_SQH_MATH_HPP
 #define INCLUDE_SQH_MATH_HPP
 
