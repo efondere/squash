@@ -63,18 +63,6 @@ float Q_dct_data_default[8][8] =
 		{52.f, 58.f, 64.f, 70.f, 76.f, 82.f, 88.f, 94.f}
 	};
 
-float Q_dct_data_default_new[8][8] =
-	{
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f},
-		{10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f, 10.f}
-	};
-
 math::Matrix<BLOCK_SIZE, BLOCK_SIZE, float> Q_dct_default = math::Matrix<BLOCK_SIZE, BLOCK_SIZE, float>::FromArray(Q_dct_data_default);
 
 
@@ -373,7 +361,7 @@ void SquashImage::compress_block(
 	if (extraZeros <= 8)
 	{
 		// use short representation
-		auto dataCount = static_cast<uint8_t>(64 - endZerosCount);
+		auto dataCount = static_cast<uint8_t>(64 - endZerosCount); // TODO: careful here! If the block is completely full, this will lead to problems...
 		compressed_block.infoByte |= dataCount;
 		compressed_block.table = 0;
 		compressed_block.dataCount = dataCount;
