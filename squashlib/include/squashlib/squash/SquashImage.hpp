@@ -20,12 +20,6 @@ namespace sqh
 class SquashImage
 {
 public:
-	enum ColorSpace : uint8_t
-	{
-		RGB,
-		YCbCr
-	};
-
 	static double Quality;
 
 	explicit SquashImage(std::string_view file_path);
@@ -45,6 +39,7 @@ public:
 	bool save_sqh(std::string_view file_path, bool overwrite=false);
 
 	uint8_t* getData();
+	const SquashHeader& getHeader();
 
 	const math::Matrix<BLOCK_SIZE, BLOCK_SIZE, float>& getDCTQTable() const;
 	const math::Matrix<BLOCK_SIZE, BLOCK_SIZE, float>& getHaarQTable() const;

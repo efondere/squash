@@ -165,7 +165,7 @@ bool SquashImage::open(std::string_view file_path)
 {
 	fs::path path(file_path);
 
-	if (path.extension() == ".png")
+	if (path.extension() == ".png" || path.extension() == ".PNG")
 	{
 		return open_png(file_path);
 	}
@@ -281,6 +281,11 @@ bool SquashImage::save_sqh(std::string_view file_path, bool overwrite)
 uint8_t* SquashImage::getData()
 {
 	return m_data;
+}
+
+const SquashHeader& SquashImage::getHeader()
+{
+	return m_header;
 }
 
 void SquashImage::free()

@@ -1,70 +1,80 @@
-#include <filesystem>
-
 #include <squashlib/squash.hpp>
-#include <squashlib/math/MatrixD.hpp>
+
+#include <filesystem>
+#include <fstream>
+#include <vector>
 
 namespace fs = std::filesystem;
 
-constexpr float learn_rate = 1.f;
-
 int main()
 {
-	std::string path = "./data/DIV2K/";
-	double prev_error = -1.0;
+	// change this to use a different data set    \/
+	auto root_path = fs::path("./data/TEXT_DATASET/");
+	auto data_path = root_path / "data";
+	auto sqh_out_path = root_path / "out";
 
-	//sqh::priv::q = sqh::math::Matrix<8, 8, float>::FromFunction([] (size_t, size_t){ return 20.f; });
+	std::vector<uint64_t> compressed_sizes;
+	std::vector<uint64_t> uncompressed_sizes;
+	std::vector<float> file_average_error;
 
-	for (const auto& entry : fs::directory_iterator(path))
+	sqh::SquashImage::Quality = 0.75f;
+
+	for (const auto& entry : fs::directory_iterator(data_path))
 	{
-		auto sqh_path = std::string("./data/DIV2K/out_sqh/") + entry.path().filename().string() + ".sqh";
-		auto output_path = std::string("./data/DIV2K/out/") + entry.path().filename().string();
-		auto avDCT = sqh::encode2(entry.path().string(), sqh_path);
-		sqh::decode(sqh_path, output_path);
+		auto sqh_file_path = sqh_out_path / (entry.path().filename().string() + ".sqh");
 
-		double compression_ratio = static_cast<double>(fs::file_size(fs::path(sqh_path))) / static_cast<double>(entry.file_size());
+		sqh::SquashImage base_image(entry.path().string());
+		base_image.save(sqh_file_path.string(), true);
 
-		int w1, h1, n1, w2, h2, n2;
-		uint8_t* data1 = stbi_load(entry.path().string().c_str(), &w1, &h1,
-		                                &n1, 1);
-		uint8_t* data2 = stbi_load(output_path.c_str(), &w2, &h2,
-		                                &n2, 1);
+		// extra info about file size, etc. is insignificant
+		uncompressed_sizes.push_back(base_image.getHeader().size_x * base_image.getHeader().size_y * 3);
+		compressed_sizes.push_back(fs::file_size(sqh_file_path));
 
-		sqh::math::MatrixD<uint8_t> m1(w1, h1);
-		m1.fromArray(data1);
-		sqh::math::MatrixD<uint8_t> m2(w1, h1);
-		m2.fromArray(data2);
+		sqh::SquashImage compressed_image(sqh_file_path.string());
 
-		auto dif = m1 - m2;
-		double norm = 1000 * dif.norm() / (w1 * h1);
+		double current_error = 0;
 
-		stbi_image_free(data1);
-		stbi_image_free(data2);
-
-
-		auto error = sqrt(compression_ratio * compression_ratio + norm * norm);
-		std::cout << entry.path().filename().string() << compression_ratio << " + " << norm << " = " << error << std::endl;
-
-		if (prev_error >= 0)
+		for (size_t i = 0; i < base_image.getHeader().size_y; i++)
 		{
-			if (error > prev_error) {
-				sqh::priv::q = sqh::priv::q + (-learn_rate / avDCT);
+			for (size_t j = 0; j < base_image.getHeader().size_x; j++)
+			{
+				for (size_t c = 0; c < 3; c++)
+				{
+					auto index = 3 * (base_image.getHeader().size_x * i + j) + c;
+					auto dif = static_cast<float>(base_image.getData()[index]) - static_cast<float>(compressed_image.getData()[index]);
+
+					current_error += dif * dif;
+				}
 			}
-			else
-				sqh::priv::q = sqh::priv::q + (learn_rate / avDCT);
 		}
 
-		prev_error = error;
+		current_error /= base_image.getHeader().size_y * base_image.getHeader().size_x;
+		std::cout << current_error << std::endl;
 
-		// 1) process first image
-		// 2) return the average DCT coefficients
-		// 3) calculate norm of angle and compression ratio vector
-		// 3) add learn_speed/avDCT to q and pass new q for second image
-		// 4) calculate the new norm that we are trying to minimize
-		// 5) decrease? -> add calculate new avDCT and add learn_speed/avDCT to quantization table
-		// 6) increase? -> subtract learn_speed/2 * 1/avDCT
+		file_average_error.push_back(static_cast<float>(current_error));
 	}
 
-	sqh::priv::q.print();
+	std::ofstream stats_file(root_path / "stats.txt", std::ios::out);
+
+	for (auto cs : compressed_sizes)
+	{
+		stats_file << cs << " ";
+	}
+	stats_file << "\n";
+
+	for (auto us : uncompressed_sizes)
+	{
+		stats_file << us << " ";
+	}
+	stats_file << "\n";
+
+	for (auto er : file_average_error)
+	{
+		stats_file << er << " ";
+	}
+	stats_file << std::endl;
+
+	stats_file.close();
 
 	return 0;
 }

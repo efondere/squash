@@ -6,9 +6,7 @@
  * @copyright Copyright (c) 2023 Eliot Fondere (MIT License)
  */
 
-#include <squashlib/squash.hpp>
-
-// https://github.com/nothings/stb/blob/master/stb_image_write.h
+//https://github.com/nothings/stb/blob/master/stb_image_write.h
 //https://github.com/nothings/stb/blob/master/stb_image.h
 //https://github.com/p-ranav/argparse
 
@@ -16,26 +14,26 @@
 #include "squashlib/squash/SquashImage.hpp"
 
 #include <iostream>
-#include <cmath>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 	argparse::ArgumentParser program("squash", "0.1");
 
-	program.add_argument("eingabedatei")
+	program.add_argument("input")
 		.required()
-		.help("die Eingabedatei fur Kompression oder Dekodierung");
+		.help("the input file to be compressed or decompressed");
 	program.add_argument("-d")
 		.implicit_value(true)
 		.default_value(false)
-		.help("die Eingabedatei dekodieren und das entschlusseltes Bild auf dem Computer schreiben");
+		.help("decode the input file and save the decompressed data to the output file");
 	program.add_argument("-c")
 		.implicit_value(true)
 		.default_value(false)
-		.help("die Eingabedatei zukomprimieren und das komprimierte Bild auf dem Computer schreiben");
+		.help("compress the input file and save the compressed data to the output file");
 	program.add_argument("-o", "--output")
 		.required()
-		.metavar("AUSGABEDATEI")
-		.help("wohin die Ausgabedatei geschreiben werden soll");
+		.metavar("output file")
+		.help("the output file to save the compressed or decompressed data");
 
 	try {
 		program.parse_args(argc, argv);
@@ -52,7 +50,7 @@ int main(int argc, char* argv[]) {
 
 	if ((compress && decompress) || (!compress && !decompress))
 	{
-		std::cerr << "mochten Sie dekodiren (-d) oder zukomprimieren (-c)?" << std::endl;
+		std::cerr << "did you want to decompress (-d) or compress (-c)?" << std::endl;
 		std::cerr << program;
 		std::exit(1);
 	}
@@ -61,12 +59,12 @@ int main(int argc, char* argv[]) {
 	if (compress)
 	{
 		sqh::SquashImage::Quality = 0.8f;
-		sqh::SquashImage img(program.get("eingabedatei"));
+		sqh::SquashImage img(program.get("input"));
 		img.save(program.get("-o"), true);
 	}
 	else
 	{
-		sqh::SquashImage img(program.get("eingabedatei"));
+		sqh::SquashImage img(program.get("input"));
 		img.save(program.get("-o"), true);
 	}
 
